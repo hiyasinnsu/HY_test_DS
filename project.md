@@ -52,14 +52,26 @@ scripts/       build.mjs / test.mjs / serve.mjs / sandbox-shim.mjs
 - [x] アプリ本体（状態機械・相対ドラッグ・キーボード・ポーズ・リザルト・ハイスコア保存・FPS 連動の品質降下）
 - [x] GitHub Pages ワークフロー（Actions: npm ci → test → build → deploy-pages、`enablement: true`）
 - [x] README（日本語）と docs/research.md（OSS 比較）
-- [ ] パターン/ステージ/ボス（ワーカー実装中）
-- [ ] レンダラ（ワーカー実装中）
-- [ ] UI 画面・タッチボタン（ワーカー実装中）
-- [ ] WebAudio（ワーカー実装中）
-- [ ] ヘッドレス統合テスト（ステージを最後まで早送りして例外・弾数上限・進行を検証）
+- [x] パターン/ステージ/ボス（ring/fan/curtain/laser/firework/emitter、13ウェーブ、5スペルカード）
+- [x] レンダラ（事前描画スプライト atlas、背景、パーティクル、レーザー/ボス表現）
+- [x] UI 画面・タッチボタン（title/playing/paused/gameover/clear、HUD、相対ドラッグ用ボタン）
+- [x] WebAudio（SFX 14種 + BGM 5曲、レート制限・同時発音上限つき）
+- [x] ヘッドレス統合テスト（実ステージを通しで実行、難易度3種すべてクリア到達）
+- [x] ヘッドレス実行時スモークテスト（ビルド済みバンドルを疑似DOMで駆動、10,717フレーム）
 - [ ] 実機ブラウザ確認、GitHub へ push、Pages 公開 URL の確認
 
 ## 5. 未解決事項と次の作業
+
+**検証済み（2026-11-09）**
+
+| 項目 | 結果 |
+| --- | --- |
+| 型チェック `npx tsc --noEmit` | エラー 0 |
+| 単体/統合テスト `npm test` | 8 ファイル / 91 テスト 全通過（統合テストでステージ1を easy/normal/hard すべてクリアまで実行） |
+| 本番ビルド `npm run build` | 成功。JS 91.2 kB（gzip 30.4 kB）、CSS 0.6 kB、`base: './'` の相対 URL を確認 |
+| スモークテスト `npm run smoke` | 成功。title→playing→pause/resume→gameover→retry→自動ポーズ→ボス→clear を実フレームで通過、実行時例外 0、drawImage 約158万回 |
+| 実機・ブラウザ | **未検証**（この環境にブラウザ・音声出力がない） |
+| Pages デプロイ | **未検証**（push 権限がないため未実行） |
 
 1. **push 権限**: このエージェント環境には GitHub 認証情報がない（`git push` が `could not read Username` で失敗）。公開にはユーザーの push（またはトークン提供）が必要。
 2. **Pages 有効化**: 初回は `configure-pages` の `enablement: true` で自動有効化を試みる。失敗時は Settings → Pages → Source = GitHub Actions を手動設定（README に記載）。
