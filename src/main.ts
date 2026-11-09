@@ -93,6 +93,7 @@ class Game {
   private shipStartY = 0;
   private focusPointerId: number | null = null;
   private lastEffects: readonly EffectEvent[] = [];
+  private readonly coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false;
 
   constructor() {
     this.audio.setEnabled(this.soundEnabled);
@@ -403,6 +404,7 @@ class Game {
     });
     this.lastEffects = [];
     this.ui.draw(ctx, this.buildUiModel(), elapsed);
+    this.drawOrientationHint(ctx);
     ctx.restore();
 
     this.trackFps(dpr);
@@ -426,6 +428,27 @@ class Game {
     } else {
       this.lowFpsTime = 0;
     }
+  }
+
+  /**
+   * Phones held sideways squeeze the 9:16 playfield into a narrow strip. The
+   * game stays playable, but a gentle hint to rotate is the difference between
+   * "this looks broken" and "oh, it wants portrait".
+   */
+  private drawOrientationHint(ctx: CanvasRenderingContext2D): void {
+    if (!this.coarsePointer || window.innerWidth <= window.innerHeight) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(5, 3, 13, 0.86)';
+    ctx.fillRect(0, 0, FIELD_W, FIELD_H);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#e8e6ff';
+    ctx.font = '600 22px system-ui, -apple-system, sans-serif';
+    ctx.fillText('スマートフォンを縦にしてください', FIELD_W / 2, FIELD_H / 2 - 14);
+    ctx.fillStyle = '#8ea0ff';
+    ctx.font = '400 14px system-ui, -apple-system, sans-serif';
+    ctx.fillText('縦向きでプレイすると画面が大きく表示されます', FIELD_W / 2, FIELD_H / 2 + 20);
+    ctx.restore();
   }
 
   private bindLifecycle(): void {

@@ -83,8 +83,12 @@ describe('stage 1 integration', () => {
   it('keeps entity counts inside the pool budgets', () => {
     const stats = runStage('normal', 200);
     expect(stats.maxBullets).toBeLessThanOrEqual(2400);
-    // A readable danmaku screen stays well under the pool ceiling.
+    // A readable danmaku screen stays well under the pool ceiling. Measured on
+    // 2026-11-09: peak 246 bullets (average 114), boss phases peak 244, stage
+    // clear at ~163 s for an invulnerable power-0 player.
     expect(stats.maxBullets).toBeLessThan(1600);
+    // Guards against a regression where patterns stop firing altogether.
+    expect(stats.maxBullets).toBeGreaterThan(100);
     expect(stats.maxEnemies).toBeLessThanOrEqual(48);
     expect(stats.maxItems).toBeLessThanOrEqual(260);
     expect(stats.maxLasers).toBeLessThanOrEqual(16);

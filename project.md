@@ -70,6 +70,8 @@ scripts/       build.mjs / test.mjs / serve.mjs / sandbox-shim.mjs
 | 単体/統合テスト `npm test` | 8 ファイル / 91 テスト 全通過（統合テストでステージ1を easy/normal/hard すべてクリアまで実行） |
 | 本番ビルド `npm run build` | 成功。JS 91.2 kB（gzip 30.4 kB）、CSS 0.6 kB、`base: './'` の相対 URL を確認 |
 | スモークテスト `npm run smoke` | 成功。title→playing→pause/resume→gameover→retry→自動ポーズ→ボス→clear を実フレームで通過、実行時例外 0、drawImage 約158万回 |
+| 弾幕密度（実測, Normal） | ピーク 246 発 / 平均 114 発 / ボス戦ピーク 244 発。弾プール容量 2400 に対し余裕（将来ステージを増やす余地） |
+| ステージ所要時間 | 雑魚 69.8 秒でボス出現、無強化・無敵のスクリプト操作で 163.4 秒クリア（スコア 67,305） |
 | 実機・ブラウザ | **未検証**（この環境にブラウザ・音声出力がない） |
 | Pages デプロイ | **未検証**（push 権限がないため未実行） |
 
