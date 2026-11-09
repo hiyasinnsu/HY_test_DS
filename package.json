@@ -1,0 +1,21 @@
+{
+  "name": "hy-test-ds",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Mobile-friendly danmaku shooter playable in the browser",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/test.mjs",
+    "test:watch": "vitest",
+    "smoke": "node scripts/build.mjs && node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7",
+    "vitest": "^5.1.0"
+  }
+}

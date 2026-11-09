@@ -1,0 +1,82 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions required by the Pages pipeline:
+#   contents: read  - check out the repository
+#   pages: write    - create/update the Pages deployment
+#   id-token: write - OIDC token that proves the upload comes from this workflow
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One Pages deployment at a time. Do not cancel an in-flight run: an interrupted
+# deploy can leave the live site in a half-published state.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # `npm ci` instead of `npm install`: installs exactly the versions pinned in
+      # package-lock.json, so CI matches a clean local install and never rewrites
+      # the lockfile.
+      - name: Install dependencies
+        run: npm ci
+
+      # Same entry point as local development (`npm test`), so a green local run
+      # means the same thing here.
+      - name: Run tests
+        run: npm test
+
+      # `npm run build` = `npm run typecheck && node scripts/build.mjs` (Vite,
+      # base './'); the site itself lands in dist/.
+      - name: Build
+        run: npm run build
+
+      # Loads dist/ in a headless DOM + canvas shim and drives thousands of real
+      # frames (start, drag, bomb, pause, death, retry, boss). Catches renderer
+      # and UI wiring crashes that the unit tests cannot see.
+      - name: Headless smoke test
+        run: node scripts/smoke.mjs
+
+      # enablement: true asks the Pages API to switch Pages on for this repo on
+      # the first run, so the deploy does not fail before Settings -> Pages has
+      # been set to "GitHub Actions" manually.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # The artifact must be the *contents* of dist/ (path: dist), because Pages
+      # serves the artifact root as the site root.
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
